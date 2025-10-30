@@ -158,18 +158,24 @@ export default function Home() {
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        const input = e.target.elements.query.value;
+        const form = e.target as HTMLFormElement;
+        const inputEl = form.querySelector("input[name='query']") as HTMLInputElement;
+        const input = inputEl?.value.trim() || "";
         const box = document.getElementById("chat-box");
-        box.innerHTML += `<div class='text-right text-sm text-blue-600 mb-2'>${input}</div>`;
-        e.target.reset();
+        if (box) {
+          box.innerHTML += `<div class='text-right text-sm text-blue-600 mb-2'>${input}</div>`;
+        }
+        form.reset();
         const res = await fetch("/api/ask-kiarash", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ query: input }),
         });
         const data = await res.json();
-        box.innerHTML += `<div class='text-left text-sm text-gray-700 mb-2'>${data.answer}</div>`;
-        box.scrollTop = box.scrollHeight;
+        if (box) {
+          box.innerHTML += `<div class='text-left text-sm text-gray-700 mb-2'>${data.answer}</div>`;
+          box.scrollTop = box.scrollHeight;
+        }
       }}
       className="p-2 border-t border-gray-200 flex"
     >
@@ -194,7 +200,13 @@ export default function Home() {
 }
 
 /* ---------- COMPONENTS ---------- */
-function Card({ title, text }) {
+type CardProps = {
+  title: string;
+  text: string;
+};
+
+function Card({ title, text }: CardProps) {
+
   return (
     <div className="bg-white/80 p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
       <h4 className="text-xl font-semibold mb-2">{title}</h4>
